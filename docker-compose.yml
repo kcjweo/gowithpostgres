@@ -1,0 +1,41 @@
+# docker-compose version
+version: '3'
+
+services:
+
+  # postgres service
+  postgres:
+    container_name: postgres
+
+    build:
+      context: .
+      dockerfile: ./docker/postgres/Dockerfile
+
+    environment:
+      - TZ=Asia/Tokyo
+      - PGTZ=Asia/Tokyo
+      - POSTGRES_USER=app_user
+      - POSTGRES_PASSWORD=yourP@ss2022
+      - POSTGRES_DB=app_db
+
+  # golang
+  app:
+    container_name: app
+    # build postgres then build app
+    depends_on:
+      - postgres
+
+    build:
+      context: .
+      dockerfile: ./docker/golang/Dockerfile
+    # SET GOPATH
+    environment:
+      - GOPATH=/home/app/go/src/kcjweo/go
+
+    ports:
+      - "8080:8080"
+
+    volumes:
+      - ./go:/home/app/go/src/kcjweo/go
+
+    command: go run main.go
